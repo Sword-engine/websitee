@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="table.css" />
+    <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+
+    table.tbody {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    </style>
+    <title>Health Monitoring System</title>
+  </head>
+  <body>
+    <h1 style="text-align:center;margin-top: 50px; border: 15px solid black;margin: 20px;background-color: lightgrey ;">Health Monitoring System</h1>
+    <!-- <h1 style="text-align:center;margin-bottom:50px">Database</h1> -->
+
+    <div>
+      <label style="margin-left: 40%;" for="pid">PID</label>
+      <select name="pid" id="pid_menu">
+        <option value="pid">Select a PID</option>
+      </select>
+      <button style="margin-bottom: 30px;" onclick="findPid()">Submit</button>
+    </div>
+
+
+<div class="block">
+
+    <table id="mt" style="margin-left: 35px;">
+      <thead>
+        <th style="size: 50px; text-align:center;">Patient ID</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Temperature</th>
+        <th>Heart Rate</th>
+        <th>SpO2</th>
+      </thead>
+      <tbody id="tbody" style="text-align:center; border: 1px solid black;   border-collapse: collapse;
+        width: 200%;"></tbody>
+    </table>
+</div>
+<div class="block">
+  <h3>Learn about the SpO2</h3>
+  <p>People with healthy lungs should have an oxygen level of 80-100 mm Hg,<br> or 95-100% when measured with a pulse oximeter. For people with lung <br>diseases, a doctor should determine the optimal levels.</p>
+  <a href="default.asp" target="https://www.healthline.com/health/normal-blood-oxygen-level">Read more</a>
+</div>
+<div class="block">
+  <h3>Heart rate and temperature</h3>
+  <p>Body temperature is an independent determinant of heart rate, causing an <br>increase of approximately 10 beats per minute per degree centigrade. <br>Body temperature is also an independent determinant of respiratory rate. </p>
+  <a href="default.asp" target="https://pubmed.ncbi.nlm.nih.gov/19700579/#:~:text=Conclusion%3A%20Body%20temperature%20is%20an,independent%20determinant%20of%20respiratory%20rate.">Read more</a>
+</div>
+<div class="block">
+  <h3>Learn about the SpO2</h3>
+  <p>People with healthy lungs should have an oxygen level of 80-100 mm Hg,<br> or 95-100% when measured with a pulse oximeter. For people with lung <br>diseases, a doctor should determine the optimal levels.</p>
+  <a href="default.asp" target="https://www.healthline.com/health/normal-blood-oxygen-level">Read more</a>
+</div>
+
+    <!--Firebase Libraries-->
+    <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-database.js"></script>
+    <script>
+      const _pid = new Set();
+      const firebaseConfig = {
+        apiKey: "AIzaSyAM8zcDgElyAKo_-EsrPKspRtn2-Hl-ARs",
+        authDomain: "health-monitoring-system-7f2f9.firebaseapp.com",
+        databaseURL:
+          "https://health-monitoring-system-7f2f9-default-rtdb.firebaseio.com",
+        projectId: "health-monitoring-system-7f2f9",
+        storageBucket: "health-monitoring-system-7f2f9.appspot.com",
+        messagingSenderId: "579299087752",
+        appId: "1:579299087752:web:1e5e769a2e34814c4cd63d",
+      };
+      firebase.initializeApp(firebaseConfig);
+
+      //   Get all data
+
+      function SelectAllData() {
+        firebase
+          .database()
+          .ref("HMSDatabase")
+          .on("value", function (AllRecords) {
+            AllRecords.forEach(function (CurrentRecord) {
+              const output = [];
+              var date = CurrentRecord.val().Date;
+              var hr = CurrentRecord.val().HeartRate;
+              var pid = CurrentRecord.val().PatientID;
+              var spo2 = CurrentRecord.val().SpO2;
+              var temp = CurrentRecord.val().Temperature;
+              var time = CurrentRecord.val().Time;
+              AddItemsToTable(pid, date, time, temp, hr, spo2);
+            });
+          });
+      }
+      window.onload = SelectAllData;
+
+      // Filling the table
+
+      function AddItemsToTable(pid, date, time, temp, hr, spo2) {
+        var tbody = document.getElementById("tbody");
+        var trow = document.createElement("tr");
+        var td1 = document.createElement("td");
+        var td2 = document.createElement("td");
+        var td3 = document.createElement("td");
+        var td4 = document.createElement("td");
+        var td5 = document.createElement("td");
+        var td6 = document.createElement("td");
+        var menu = document.getElementById("pid_menu");
+        var dbmenu = document.createElement("option");
+        dbmenu.innerHTML = pid;
+        td1.innerHTML = pid;
+        td2.innerHTML = date;
+        td3.innerHTML = time;
+        td4.innerHTML = temp;
+        td5.innerHTML = hr;
+        td6.innerHTML = spo2;
+        trow.appendChild(td1);
+        trow.appendChild(td2);
+        trow.appendChild(td3);
+        trow.appendChild(td4);
+        trow.appendChild(td5);
+        trow.appendChild(td6);
+        tbody.appendChild(trow);
+        menu.appendChild(dbmenu);
+      }
+
+      function findPid() {
+        filter = document.getElementById("pid_menu").value;
+
+        table = document.getElementById("mt");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[0];
+          if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            } else {
+              tr[i].style.display = "none";
+            }
+          }
+
+          //var playersRef = firebase.database().ref("HMSDatabase/");
+          //playersRef
+          //.orderByChild("PatientID").equalTo(input)
+          //.on("child_added", function (data) {
+          //console.log(data.val().PatientID);
+        }
+      }
+    </script>
+  </body>
+</html>
